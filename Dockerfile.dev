@@ -1,0 +1,25 @@
+# Development Dockerfile for Go Gin API Gateway with hot reload
+FROM golang:1.21-alpine
+
+# Install air for hot reload
+RUN go install github.com/cosmtrek/air@latest
+
+# Install git and build dependencies
+RUN apk add --no-cache git ca-certificates tzdata
+
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 8080
+
+# Use air for hot reload
+CMD ["air", "-c", ".air.toml"]
