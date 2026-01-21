@@ -106,6 +106,29 @@ The API uses JWT (JSON Web Token) for authentication. Include the token in the A
 Authorization: Bearer <your-jwt-token>
 ```
 
+## GraphQL Gateway
+
+For complex data aggregations, real-time features, and efficient data fetching, the platform also provides a GraphQL endpoint via `be-graphql-go`:
+
+- **GraphQL HTTP**: `http://localhost:30900/graphql`
+- **GraphQL WebSocket**: `ws://localhost:30901/graphql` (for subscriptions)
+
+### When to Use GraphQL vs REST
+
+- **Use REST (this API)** for:
+  - Simple CRUD operations
+  - Internal service-to-service communication
+  - Traditional backend integrations
+
+- **Use GraphQL** for:
+  - Complex data aggregations (e.g., homepage with products + categories + recommendations)
+  - Product detail pages with related data (inventory, similar products, reviews)
+  - Real-time updates via subscriptions
+  - Mobile applications requiring flexible queries
+  - Frontend applications needing precise data fetching
+
+Both APIs coexist and share the same backend microservices via gRPC.
+
 ## License
 
 MIT License
