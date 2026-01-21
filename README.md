@@ -2,6 +2,65 @@
 
 A minimal API Gateway built with [Gin](https://github.com/gin-gonic/gin) that routes requests to backend microservices via gRPC.
 
+## 🎯 About This Repository
+
+This repository is part of the **ecommerce-polyrepo** project - a polyrepo setup designed for testing the [Propel](https://propel.us) code review feature across multiple microservices.
+
+### Role in Microservices Architecture
+
+The API Gateway serves as the **REST API entry point** in the microservices architecture:
+
+```
+┌─────────────┐
+│  Frontend   │
+│  (Next.js)  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────┐     gRPC      ┌──────────────┐
+│  API Gateway    │◄──────────────►│ User Service │
+│  (Go/Gin)       │                │  (Django)    │
+│  [THIS REPO]    │                └──────────────┘
+└─────────────────┘
+       │
+       │ gRPC
+       ├─────────────────►┌──────────────────┐
+       │                   │ Listing Service  │
+       │                   │  (Spring Boot)   │
+       │                   └──────────────────┘
+       │
+       └─────────────────►┌──────────────────┐
+                           │Inventory Service │
+                           │    (Rails)       │
+                           └──────────────────┘
+```
+
+### Quick Start (Standalone Testing)
+
+To test this service independently:
+
+```bash
+# 1. Install dependencies
+go mod download
+
+# 2. Set up environment
+cp .env.example .env
+# Edit .env with mock service addresses or local services
+
+# 3. Run the service
+go run main.go
+
+# 4. Test health endpoint
+curl http://localhost:8080/health
+
+# 5. Test API endpoints (requires backend services)
+curl http://localhost:8080/api/v1/products
+```
+
+**Note:** For full functionality, backend microservices (user, listing, inventory) must be running. See the [parent polyrepo](https://github.com/jasonyuezhang/ecommerce-polyrepo) for orchestrated setup with all services.
+
+---
+
 ## Architecture
 
 This API Gateway serves as the single entry point for all client requests and routes them to the appropriate microservices:
