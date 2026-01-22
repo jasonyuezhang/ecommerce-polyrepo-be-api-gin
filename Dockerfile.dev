@@ -1,8 +1,8 @@
 # Development Dockerfile for Go Gin API Gateway with hot reload
 FROM golang:1.23-alpine
 
-# Install air for hot reload (v1.52.0 works with Go 1.23)
-RUN go install github.com/air-verse/air@v1.52.0
+# Install air for hot reload (v1.61.5 - compatible with Go 1.23 and has correct module path)
+RUN go install github.com/air-verse/air@v1.61.5
 
 # Install git and build dependencies
 RUN apk add --no-cache git ca-certificates tzdata
