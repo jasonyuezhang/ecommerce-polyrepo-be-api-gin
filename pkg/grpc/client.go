@@ -253,7 +253,7 @@ func (c *Clients) GetOrder(ctx context.Context, orderID, userID string) (*models
 	return &models.Order{
 		ID:     orderID,
 		UserID: userID,
-		Status: "pending",
+		Status: models.OrderStatusInfo{Current: "pending"},
 	}, nil
 }
 
@@ -277,7 +277,8 @@ func (c *Clients) CreateOrder(ctx context.Context, userID string, req *models.Cr
 		ID:             "order-new",
 		UserID:         userID,
 		Items:          items,
-		Status:         "pending",
+		Status:         models.OrderStatusInfo{Current: "pending"},
+		Payment:        req.Payment,
 		TotalAmount:    total,
 		ShippingAddr:   req.ShippingAddr,
 		ReservationIDs: reservationIDs,
@@ -290,7 +291,7 @@ func (c *Clients) UpdateOrderStatus(ctx context.Context, orderID, userID, status
 	return &models.Order{
 		ID:     orderID,
 		UserID: userID,
-		Status: status,
+		Status: models.OrderStatusInfo{Current: status},
 	}, nil
 }
 
