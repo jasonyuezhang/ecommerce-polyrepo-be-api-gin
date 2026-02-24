@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"google.golang.org/grpc"
@@ -135,9 +136,13 @@ func (c *Clients) ListProducts(ctx context.Context, page, limit int, category, s
 			ID:          "prod-001",
 			Name:        "Sample Product",
 			Description: "A sample product for testing",
-			Price:       29.99,
-			Category:    "electronics",
-			Available:   true,
+			Price: models.PriceInfo{
+				Amount:       2999,
+				Currency:     "USD",
+				DisplayValue: fmt.Sprintf("$%.2f", float64(2999)/100),
+			},
+			Category:  "electronics",
+			Available: true,
 		},
 	}
 	return products, 1, nil
@@ -153,9 +158,13 @@ func (c *Clients) GetProduct(ctx context.Context, id string) (*models.Product, e
 		ID:          id,
 		Name:        "Sample Product",
 		Description: "A sample product for testing",
-		Price:       29.99,
-		Category:    "electronics",
-		Available:   true,
+		Price: models.PriceInfo{
+			Amount:       2999,
+			Currency:     "USD",
+			DisplayValue: fmt.Sprintf("$%.2f", float64(2999)/100),
+		},
+		Category:  "electronics",
+		Available: true,
 	}, nil
 }
 
@@ -261,24 +270,28 @@ func (c *Clients) GetOrder(ctx context.Context, orderID, userID string) (*models
 func (c *Clients) CreateOrder(ctx context.Context, userID string, req *models.CreateOrderRequest, reservationIDs []string) (*models.Order, error) {
 	// TODO: Implement actual gRPC call
 	var items []models.OrderItem
-	var total float64
+	var totalCents int64
 	for _, item := range req.Items {
 		orderItem := models.OrderItem{
 			ProductID:  item.ProductID,
 			Quantity:   item.Quantity,
-			UnitPrice:  29.99, // Would come from product lookup
-			TotalPrice: float64(item.Quantity) * 29.99,
+			UnitPrice:  models.PriceInfo{Amount: 2999, Currency: "USD", DisplayValue: "$29.99"},
+			TotalPrice: models.PriceInfo{Amount: int64(item.Quantity) * 2999, Currency: "USD", DisplayValue: fmt.Sprintf("$%.2f", float64(int64(item.Quantity)*2999)/100)},
 		}
 		items = append(items, orderItem)
-		total += orderItem.TotalPrice
+		totalCents += orderItem.TotalPrice.Amount
 	}
 
 	return &models.Order{
-		ID:             "order-new",
-		UserID:         userID,
-		Items:          items,
-		Status:         "pending",
-		TotalAmount:    total,
+		ID:     "order-new",
+		UserID: userID,
+		Items:  items,
+		Status: "pending",
+		TotalAmount: models.PriceInfo{
+			Amount:       totalCents,
+			Currency:     "USD",
+			DisplayValue: fmt.Sprintf("$%.2f", float64(totalCents)/100),
+		},
 		ShippingAddr:   req.ShippingAddr,
 		ReservationIDs: reservationIDs,
 	}, nil
