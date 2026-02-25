@@ -37,8 +37,8 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 	orders, total, err := h.grpcClients.ListOrders(c.Request.Context(), userID.(string), page, limit, status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to fetch orders",
-			Message: err.Error(),
+			Code:   "Failed to fetch orders",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -63,21 +63,21 @@ func (h *OrderHandler) GetOrder(c *gin.Context) {
 	if err != nil {
 		if err == grpcclient.ErrNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{
-				Error:   "Order not found",
-				Message: "No order exists with the given ID",
+				Code:   "Order not found",
+				Detail: "No order exists with the given ID",
 			})
 			return
 		}
 		if err == grpcclient.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, models.ErrorResponse{
-				Error:   "Unauthorized",
-				Message: "You don't have permission to view this order",
+				Code:   "Unauthorized",
+				Detail: "You don't have permission to view this order",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to fetch order",
-			Message: err.Error(),
+			Code:   "Failed to fetch order",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -91,8 +91,8 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	var req models.CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Invalid request body",
-			Message: err.Error(),
+			Code:   "Invalid request body",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -104,15 +104,15 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		available, err := h.grpcClients.CheckInventory(c.Request.Context(), item.ProductID, item.Quantity)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Error:   "Failed to check inventory",
-				Message: err.Error(),
+				Code:   "Failed to check inventory",
+				Detail: err.Error(),
 			})
 			return
 		}
 		if !available {
 			c.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Error:   "Insufficient inventory",
-				Message: "Product " + item.ProductID + " does not have enough stock",
+				Code:   "Insufficient inventory",
+				Detail: "Product " + item.ProductID + " does not have enough stock",
 			})
 			return
 		}
@@ -128,8 +128,8 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 				h.grpcClients.CancelReservation(c.Request.Context(), rid)
 			}
 			c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Error:   "Failed to reserve inventory",
-				Message: err.Error(),
+				Code:   "Failed to reserve inventory",
+				Detail: err.Error(),
 			})
 			return
 		}
@@ -144,8 +144,8 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 			h.grpcClients.CancelReservation(c.Request.Context(), rid)
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to create order",
-			Message: err.Error(),
+			Code:   "Failed to create order",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -162,8 +162,8 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	var req models.UpdateOrderStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Invalid request body",
-			Message: err.Error(),
+			Code:   "Invalid request body",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -173,21 +173,21 @@ func (h *OrderHandler) UpdateOrderStatus(c *gin.Context) {
 	if err != nil {
 		if err == grpcclient.ErrNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{
-				Error:   "Order not found",
-				Message: "No order exists with the given ID",
+				Code:   "Order not found",
+				Detail: "No order exists with the given ID",
 			})
 			return
 		}
 		if err == grpcclient.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, models.ErrorResponse{
-				Error:   "Unauthorized",
-				Message: "You don't have permission to update this order",
+				Code:   "Unauthorized",
+				Detail: "You don't have permission to update this order",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to update order status",
-			Message: err.Error(),
+			Code:   "Failed to update order status",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -206,21 +206,21 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	if err != nil {
 		if err == grpcclient.ErrNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{
-				Error:   "Order not found",
-				Message: "No order exists with the given ID",
+				Code:   "Order not found",
+				Detail: "No order exists with the given ID",
 			})
 			return
 		}
 		if err == grpcclient.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, models.ErrorResponse{
-				Error:   "Unauthorized",
-				Message: "You don't have permission to cancel this order",
+				Code:   "Unauthorized",
+				Detail: "You don't have permission to cancel this order",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to fetch order",
-			Message: err.Error(),
+			Code:   "Failed to fetch order",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -228,8 +228,8 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	// Check if order can be cancelled
 	if order.Status != "pending" && order.Status != "confirmed" {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Cannot cancel order",
-			Message: "Order can only be cancelled when in pending or confirmed status",
+			Code:   "Cannot cancel order",
+			Detail: "Order can only be cancelled when in pending or confirmed status",
 		})
 		return
 	}
@@ -238,8 +238,8 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	err = h.grpcClients.CancelOrder(c.Request.Context(), id, userID.(string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to cancel order",
-			Message: err.Error(),
+			Code:   "Failed to cancel order",
+			Detail: err.Error(),
 		})
 		return
 	}

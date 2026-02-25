@@ -35,8 +35,8 @@ func (h *ProductHandler) ListProducts(c *gin.Context) {
 	products, total, err := h.grpcClients.ListProducts(c.Request.Context(), page, limit, category, search)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to fetch products",
-			Message: err.Error(),
+			Code:   "Failed to fetch products",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -68,14 +68,14 @@ func (h *ProductHandler) GetProduct(c *gin.Context) {
 	if err != nil {
 		if err == grpcclient.ErrNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{
-				Error:   "Product not found",
-				Message: "No product exists with the given ID",
+				Code:   "Product not found",
+				Detail: "No product exists with the given ID",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to fetch product",
-			Message: err.Error(),
+			Code:   "Failed to fetch product",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -103,8 +103,8 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	var req models.CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Invalid request body",
-			Message: err.Error(),
+			Code:   "Invalid request body",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -116,8 +116,8 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	product, err := h.grpcClients.CreateProduct(c.Request.Context(), &req, userID.(string))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to create product",
-			Message: err.Error(),
+			Code:   "Failed to create product",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -139,8 +139,8 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	var req models.UpdateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Invalid request body",
-			Message: err.Error(),
+			Code:   "Invalid request body",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -153,21 +153,21 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 	if err != nil {
 		if err == grpcclient.ErrNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{
-				Error:   "Product not found",
-				Message: "No product exists with the given ID",
+				Code:   "Product not found",
+				Detail: "No product exists with the given ID",
 			})
 			return
 		}
 		if err == grpcclient.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, models.ErrorResponse{
-				Error:   "Unauthorized",
-				Message: "You don't have permission to update this product",
+				Code:   "Unauthorized",
+				Detail: "You don't have permission to update this product",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to update product",
-			Message: err.Error(),
+			Code:   "Failed to update product",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -188,21 +188,21 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	if err != nil {
 		if err == grpcclient.ErrNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{
-				Error:   "Product not found",
-				Message: "No product exists with the given ID",
+				Code:   "Product not found",
+				Detail: "No product exists with the given ID",
 			})
 			return
 		}
 		if err == grpcclient.ErrUnauthorized {
 			c.JSON(http.StatusForbidden, models.ErrorResponse{
-				Error:   "Unauthorized",
-				Message: "You don't have permission to delete this product",
+				Code:   "Unauthorized",
+				Detail: "You don't have permission to delete this product",
 			})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to delete product",
-			Message: err.Error(),
+			Code:   "Failed to delete product",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -220,8 +220,8 @@ func (h *ProductHandler) UpdateInventory(c *gin.Context) {
 	var req models.UpdateInventoryRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Invalid request body",
-			Message: err.Error(),
+			Code:   "Invalid request body",
+			Detail: err.Error(),
 		})
 		return
 	}
@@ -230,8 +230,8 @@ func (h *ProductHandler) UpdateInventory(c *gin.Context) {
 	inventory, err := h.grpcClients.UpdateInventory(c.Request.Context(), id, req.Quantity, req.Operation)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Failed to update inventory",
-			Message: err.Error(),
+			Code:   "Failed to update inventory",
+			Detail: err.Error(),
 		})
 		return
 	}
