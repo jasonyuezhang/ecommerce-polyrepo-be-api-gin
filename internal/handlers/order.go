@@ -44,11 +44,11 @@ func (h *OrderHandler) ListOrders(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.PaginatedResponse{
-		Data:       orders,
-		Page:       page,
-		Limit:      limit,
-		Total:      total,
-		TotalPages: (total + int64(limit) - 1) / int64(limit),
+		Data:    orders,
+		Offset:  (page - 1) * limit,
+		Count:   limit,
+		Total:   total,
+		HasMore: int64(page*limit) < total,
 	})
 }
 

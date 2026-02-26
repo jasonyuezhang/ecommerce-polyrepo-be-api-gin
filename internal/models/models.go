@@ -13,13 +13,14 @@ type SuccessResponse struct {
 	Message string `json:"message"`
 }
 
-// PaginatedResponse represents a paginated response
+// PaginatedResponse uses offset-based pagination for better API consistency.
+// Offset = (page - 1) * limit, providing direct database query mapping.
 type PaginatedResponse struct {
-	Data       interface{} `json:"data"`
-	Page       int         `json:"page"`
-	Limit      int         `json:"limit"`
-	Total      int64       `json:"total"`
-	TotalPages int64       `json:"total_pages"`
+	Data    interface{} `json:"data"`
+	Offset  int         `json:"offset"`
+	Count   int         `json:"count"`
+	Total   int64       `json:"total"`
+	HasMore bool        `json:"has_more"`
 }
 
 // ProductsResponse represents a paginated products response
