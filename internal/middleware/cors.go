@@ -71,7 +71,11 @@ func RequestIDMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := c.GetHeader("X-Request-ID")
 		if requestID == "" {
-			requestID = generateRequestID()
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error":   "Missing Request ID",
+				"message": "X-Request-ID header is required",
+			})
+			return
 		}
 
 		c.Set("requestID", requestID)
