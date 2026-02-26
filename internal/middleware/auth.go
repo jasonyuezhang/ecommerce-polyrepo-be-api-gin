@@ -25,8 +25,8 @@ func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Missing authorization header",
-				Message: "Please provide a valid JWT token in the Authorization header",
+				Code:   "Missing authorization header",
+				Detail: "Please provide a valid JWT token in the Authorization header",
 			})
 			return
 		}
@@ -35,8 +35,8 @@ func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Invalid authorization header format",
-				Message: "Authorization header must be in the format: Bearer <token>",
+				Code:   "Invalid authorization header format",
+				Detail: "Authorization header must be in the format: Bearer <token>",
 			})
 			return
 		}
@@ -55,16 +55,16 @@ func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Invalid token",
-				Message: "The provided token is invalid or expired",
+				Code:   "Invalid token",
+				Detail: "The provided token is invalid or expired",
 			})
 			return
 		}
 
 		if !token.Valid {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Invalid token",
-				Message: "The provided token is not valid",
+				Code:   "Invalid token",
+				Detail: "The provided token is not valid",
 			})
 			return
 		}
@@ -122,16 +122,16 @@ func AdminMiddleware() gin.HandlerFunc {
 		role, exists := c.Get("role")
 		if !exists {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Unauthorized",
-				Message: "Authentication required",
+				Code:   "Unauthorized",
+				Detail: "Authentication required",
 			})
 			return
 		}
 
 		if role != "admin" {
 			c.AbortWithStatusJSON(http.StatusForbidden, models.ErrorResponse{
-				Error:   "Forbidden",
-				Message: "Admin access required",
+				Code:   "Forbidden",
+				Detail: "Admin access required",
 			})
 			return
 		}

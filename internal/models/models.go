@@ -2,10 +2,10 @@ package models
 
 import "time"
 
-// ErrorResponse represents an error response
+// ErrorResponse represents an error response aligned with RFC 7807 Problem Details
 type ErrorResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message"`
+	Code   string `json:"code"`
+	Detail string `json:"detail"`
 }
 
 // SuccessResponse represents a success response
@@ -24,10 +24,10 @@ type PaginatedResponse struct {
 
 // ProductsResponse represents a paginated products response
 type ProductsResponse struct {
-	Products   []*Product `json:"products"`
-	Page       int        `json:"page"`
-	Limit      int        `json:"limit"`
-	Total      int64      `json:"total"`
+	Products []*Product `json:"products"`
+	Page     int        `json:"page"`
+	Limit    int        `json:"limit"`
+	Total    int64      `json:"total"`
 }
 
 // Product represents a product
