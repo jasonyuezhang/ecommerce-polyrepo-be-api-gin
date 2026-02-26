@@ -4,8 +4,8 @@ import "time"
 
 // ErrorResponse represents an error response
 type ErrorResponse struct {
-	Error   string `json:"error"`
-	Message string `json:"message"`
+	Error   string `json:"code"`
+	Message string `json:"detail"`
 }
 
 // SuccessResponse represents a success response

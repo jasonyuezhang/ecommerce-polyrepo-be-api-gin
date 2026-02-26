@@ -69,16 +69,16 @@ func Setup(cfg *config.Config, grpcClients *grpcclient.Clients) *gin.Engine {
 	// Handle 404
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Not Found",
-			"message": "The requested resource was not found",
+			"code":   "Not Found",
+			"detail": "The requested resource was not found",
 		})
 	})
 
 	// Handle 405
 	router.NoMethod(func(c *gin.Context) {
 		c.JSON(http.StatusMethodNotAllowed, gin.H{
-			"error":   "Method Not Allowed",
-			"message": "The requested method is not allowed for this resource",
+			"code":   "Method Not Allowed",
+			"detail": "The requested method is not allowed for this resource",
 		})
 	})
 

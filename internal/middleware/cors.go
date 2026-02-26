@@ -99,13 +99,13 @@ func RecoveryMiddleware() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		if err, ok := recovered.(string); ok {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error":   "Internal Server Error",
-				"message": err,
+				"code":   "Internal Server Error",
+				"detail": err,
 			})
 		}
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"error":   "Internal Server Error",
-			"message": "An unexpected error occurred",
+			"code":   "Internal Server Error",
+			"detail": "An unexpected error occurred",
 		})
 	})
 }
