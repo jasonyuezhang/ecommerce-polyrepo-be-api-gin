@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -64,34 +63,6 @@ func SecurityHeadersMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-// RequestIDMiddleware adds a unique request ID to each request
-func RequestIDMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		requestID := c.GetHeader("X-Request-ID")
-		if requestID == "" {
-			requestID = generateRequestID()
-		}
-
-		c.Set("requestID", requestID)
-		c.Header("X-Request-ID", requestID)
-
-		c.Next()
-	}
-}
-
-// generateRequestID generates a simple unique request ID
-func generateRequestID() string {
-	// Simple implementation - in production use UUID
-	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
-	var sb strings.Builder
-	sb.WriteString("req-")
-	// Using a simple approach - in production use crypto/rand
-	for i := 0; i < 16; i++ {
-		sb.WriteByte(charset[i%len(charset)])
-	}
-	return sb.String()
 }
 
 // RecoveryMiddleware recovers from panics and returns a 500 error
