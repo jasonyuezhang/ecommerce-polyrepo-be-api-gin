@@ -3,8 +3,8 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -31,34 +31,36 @@ type Clients struct {
 }
 
 // NewClients creates and initializes all gRPC client connections
+// Connections are established asynchronously and will automatically retry if services are unavailable
 func NewClients(cfg *config.Config) (*Clients, error) {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
+		// Removed WithBlock() to allow async connection establishment and automatic retries
 	}
 
-	// Context with timeout for connection
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// Connect to User Service
-	userConn, err := grpc.DialContext(ctx, cfg.UserServiceAddr, opts...)
+	// Connect to User Service (non-blocking)
+	userConn, err := grpc.Dial(cfg.UserServiceAddr, opts...)
 	if err != nil {
-		log.Printf("Warning: Failed to connect to user service at %s: %v", cfg.UserServiceAddr, err)
-		// Don't fail - service might not be available yet
+		return nil, err
 	}
 
-	// Connect to Listing Service
-	listingConn, err := grpc.DialContext(ctx, cfg.ListingServiceAddr, opts...)
+	// Connect to Listing Service (non-blocking)
+	listingConn, err := grpc.Dial(cfg.ListingServiceAddr, opts...)
 	if err != nil {
-		log.Printf("Warning: Failed to connect to listing service at %s: %v", cfg.ListingServiceAddr, err)
+		userConn.Close()
+		return nil, err
 	}
 
-	// Connect to Inventory Service
-	inventoryConn, err := grpc.DialContext(ctx, cfg.InventoryServiceAddr, opts...)
+	// Connect to Inventory Service (non-blocking)
+	inventoryConn, err := grpc.Dial(cfg.InventoryServiceAddr, opts...)
 	if err != nil {
-		log.Printf("Warning: Failed to connect to inventory service at %s: %v", cfg.InventoryServiceAddr, err)
+		userConn.Close()
+		listingConn.Close()
+		return nil, err
 	}
+
+	log.Printf("gRPC clients initialized for: user=%s, listing=%s, inventory=%s",
+		cfg.UserServiceAddr, cfg.ListingServiceAddr, cfg.InventoryServiceAddr)
 
 	return &Clients{
 		userConn:      userConn,
@@ -82,11 +84,23 @@ func (c *Clients) Close() {
 }
 
 // HealthCheck checks the health of all connected services
+// A connection is considered healthy if it's in READY or IDLE state
+// IDLE means the connection hasn't been used yet but can establish connection when needed
 func (c *Clients) HealthCheck(ctx context.Context) map[string]bool {
+	isHealthy := func(conn *grpc.ClientConn) bool {
+		if conn == nil {
+			return false
+		}
+		state := conn.GetState().String()
+		// READY: Connection is established and ready
+		// IDLE: Connection hasn't been used yet but will connect when needed
+		return state == "READY" || state == "IDLE"
+	}
+
 	return map[string]bool{
-		"user-service":      c.userConn != nil && c.userConn.GetState().String() == "READY",
-		"listing-service":   c.listingConn != nil && c.listingConn.GetState().String() == "READY",
-		"inventory-service": c.inventoryConn != nil && c.inventoryConn.GetState().String() == "READY",
+		"user-service":      isHealthy(c.userConn),
+		"listing-service":   isHealthy(c.listingConn),
+		"inventory-service": isHealthy(c.inventoryConn),
 	}
 }
 
@@ -122,9 +136,13 @@ func (c *Clients) ListProducts(ctx context.Context, page, limit int, category, s
 			ID:          "prod-001",
 			Name:        "Sample Product",
 			Description: "A sample product for testing",
-			Price:       29.99,
-			Category:    "electronics",
-			Available:   true,
+			Price: models.PriceInfo{
+				Amount:       2999,
+				Currency:     "USD",
+				DisplayValue: fmt.Sprintf("$%.2f", float64(2999)/100),
+			},
+			Category:  "electronics",
+			Available: true,
 		},
 	}
 	return products, 1, nil
@@ -140,9 +158,13 @@ func (c *Clients) GetProduct(ctx context.Context, id string) (*models.Product, e
 		ID:          id,
 		Name:        "Sample Product",
 		Description: "A sample product for testing",
-		Price:       29.99,
-		Category:    "electronics",
-		Available:   true,
+		Price: models.PriceInfo{
+			Amount:       2999,
+			Currency:     "USD",
+			DisplayValue: fmt.Sprintf("$%.2f", float64(2999)/100),
+		},
+		Category:  "electronics",
+		Available: true,
 	}, nil
 }
 
@@ -248,24 +270,28 @@ func (c *Clients) GetOrder(ctx context.Context, orderID, userID string) (*models
 func (c *Clients) CreateOrder(ctx context.Context, userID string, req *models.CreateOrderRequest, reservationIDs []string) (*models.Order, error) {
 	// TODO: Implement actual gRPC call
 	var items []models.OrderItem
-	var total float64
+	var totalCents int64
 	for _, item := range req.Items {
 		orderItem := models.OrderItem{
 			ProductID:  item.ProductID,
 			Quantity:   item.Quantity,
-			UnitPrice:  29.99, // Would come from product lookup
-			TotalPrice: float64(item.Quantity) * 29.99,
+			UnitPrice:  models.PriceInfo{Amount: 2999, Currency: "USD", DisplayValue: "$29.99"},
+			TotalPrice: models.PriceInfo{Amount: int64(item.Quantity) * 2999, Currency: "USD", DisplayValue: fmt.Sprintf("$%.2f", float64(int64(item.Quantity)*2999)/100)},
 		}
 		items = append(items, orderItem)
-		total += orderItem.TotalPrice
+		totalCents += orderItem.TotalPrice.Amount
 	}
 
 	return &models.Order{
-		ID:             "order-new",
-		UserID:         userID,
-		Items:          items,
-		Status:         "pending",
-		TotalAmount:    total,
+		ID:     "order-new",
+		UserID: userID,
+		Items:  items,
+		Status: "pending",
+		TotalAmount: models.PriceInfo{
+			Amount:       totalCents,
+			Currency:     "USD",
+			DisplayValue: fmt.Sprintf("$%.2f", float64(totalCents)/100),
+		},
 		ShippingAddr:   req.ShippingAddr,
 		ReservationIDs: reservationIDs,
 	}, nil

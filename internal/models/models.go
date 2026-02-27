@@ -30,12 +30,19 @@ type ProductsResponse struct {
 	Total      int64      `json:"total"`
 }
 
+// PriceInfo represents structured pricing information
+type PriceInfo struct {
+	Amount       int64  `json:"amount"`
+	Currency     string `json:"currency"`
+	DisplayValue string `json:"display_value"`
+}
+
 // Product represents a product
 type Product struct {
 	ID          string    `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	Price       float64   `json:"price"`
+	Price       PriceInfo `json:"price"`
 	Category    string    `json:"category,omitempty"`
 	ImageUrl    string    `json:"imageUrl,omitempty"`
 	Images      []string  `json:"images,omitempty"`
@@ -51,7 +58,7 @@ type Product struct {
 type CreateProductRequest struct {
 	Name         string   `json:"name" binding:"required,min=1,max=200"`
 	Description  string   `json:"description" binding:"max=5000"`
-	Price        float64  `json:"price" binding:"required,gt=0"`
+	Price        PriceInfo `json:"price" binding:"required"`
 	Category     string   `json:"category" binding:"required"`
 	Images       []string `json:"images"`
 	InitialStock int32    `json:"initial_stock" binding:"gte=0"`
@@ -61,7 +68,7 @@ type CreateProductRequest struct {
 type UpdateProductRequest struct {
 	Name        *string   `json:"name,omitempty" binding:"omitempty,min=1,max=200"`
 	Description *string   `json:"description,omitempty" binding:"omitempty,max=5000"`
-	Price       *float64  `json:"price,omitempty" binding:"omitempty,gt=0"`
+	Price       *PriceInfo `json:"price,omitempty"`
 	Category    *string   `json:"category,omitempty"`
 	Images      *[]string `json:"images,omitempty"`
 }
@@ -86,7 +93,7 @@ type Order struct {
 	UserID         string      `json:"user_id"`
 	Items          []OrderItem `json:"items"`
 	Status         string      `json:"status"`
-	TotalAmount    float64     `json:"total_amount"`
+	TotalAmount    PriceInfo   `json:"total_amount"`
 	ShippingAddr   Address     `json:"shipping_address"`
 	ReservationIDs []string    `json:"reservation_ids,omitempty"`
 	CreatedAt      time.Time   `json:"created_at"`
@@ -95,11 +102,11 @@ type Order struct {
 
 // OrderItem represents an item in an order
 type OrderItem struct {
-	ProductID   string  `json:"product_id"`
-	ProductName string  `json:"product_name"`
-	Quantity    int32   `json:"quantity"`
-	UnitPrice   float64 `json:"unit_price"`
-	TotalPrice  float64 `json:"total_price"`
+	ProductID   string    `json:"product_id"`
+	ProductName string    `json:"product_name"`
+	Quantity    int32     `json:"quantity"`
+	UnitPrice   PriceInfo `json:"unit_price"`
+	TotalPrice  PriceInfo `json:"total_price"`
 }
 
 // Address represents a shipping or billing address
