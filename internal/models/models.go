@@ -80,17 +80,33 @@ type UpdateInventoryRequest struct {
 	Operation string `json:"operation" binding:"required,oneof=set add subtract"`
 }
 
+// OrderStatusInfo represents structured order status
+type OrderStatusInfo struct {
+	Current   string `json:"current"`
+	Previous  string `json:"previous,omitempty"`
+	Reason    string `json:"reason,omitempty"`
+	UpdatedAt string `json:"updated_at,omitempty"`
+}
+
+// PaymentInfo represents payment method information
+type PaymentInfo struct {
+	Method        string `json:"method" binding:"required,oneof=credit_card paypal bank_transfer crypto"`
+	TransactionID string `json:"transaction_id,omitempty"`
+	Status        string `json:"status,omitempty"`
+}
+
 // Order represents an order
 type Order struct {
-	ID             string      `json:"id"`
-	UserID         string      `json:"user_id"`
-	Items          []OrderItem `json:"items"`
-	Status         string      `json:"status"`
-	TotalAmount    float64     `json:"total_amount"`
-	ShippingAddr   Address     `json:"shipping_address"`
-	ReservationIDs []string    `json:"reservation_ids,omitempty"`
-	CreatedAt      time.Time   `json:"created_at"`
-	UpdatedAt      time.Time   `json:"updated_at"`
+	ID             string          `json:"id"`
+	UserID         string          `json:"user_id"`
+	Items          []OrderItem     `json:"items"`
+	Status         OrderStatusInfo `json:"status"`
+	Payment        PaymentInfo     `json:"payment"`
+	TotalAmount    float64         `json:"total_amount"`
+	ShippingAddr   Address         `json:"shipping_address"`
+	ReservationIDs []string        `json:"reservation_ids,omitempty"`
+	CreatedAt      time.Time       `json:"created_at"`
+	UpdatedAt      time.Time       `json:"updated_at"`
 }
 
 // OrderItem represents an item in an order
@@ -108,13 +124,14 @@ type Address struct {
 	City       string `json:"city"`
 	State      string `json:"state"`
 	PostalCode string `json:"postal_code"`
-	Country    string `json:"country"`
+	CountryCode string `json:"country_code"`
 }
 
 // CreateOrderRequest represents a request to create an order
 type CreateOrderRequest struct {
 	Items        []CreateOrderItem `json:"items" binding:"required,min=1,dive"`
 	ShippingAddr Address           `json:"shipping_address" binding:"required"`
+	Payment      PaymentInfo       `json:"payment" binding:"required"`
 }
 
 // CreateOrderItem represents an item in a create order request
@@ -125,7 +142,8 @@ type CreateOrderItem struct {
 
 // UpdateOrderStatusRequest represents a request to update order status
 type UpdateOrderStatusRequest struct {
-	Status string `json:"status" binding:"required,oneof=pending confirmed processing shipped delivered cancelled"`
+	Status string `json:"status" binding:"required,oneof=pending confirmed processing shipped out_for_delivery delivered cancelled refunded"`
+	Reason string `json:"reason,omitempty"`
 }
 
 // User represents a user
