@@ -11,6 +11,24 @@ import (
 	"github.com/ecommerce/be-api-gin/internal/models"
 )
 
+// RequestIDMiddleware validates that all API requests include a trace ID header.
+// This is required for distributed tracing across microservices.
+func RequestIDMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requestID := c.GetHeader("X-Request-ID")
+		if requestID == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, models.ErrorResponse{
+				Error:   "Missing required header",
+				Message: "X-Request-ID header is required for request tracing",
+			})
+			return
+		}
+		c.Set("requestID", requestID)
+		c.Header("X-Request-ID", requestID)
+		c.Next()
+	}
+}
+
 // Claims represents JWT claims
 type Claims struct {
 	UserID string `json:"user_id"`
