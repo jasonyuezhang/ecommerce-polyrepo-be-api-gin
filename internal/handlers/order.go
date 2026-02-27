@@ -226,7 +226,7 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	}
 
 	// Check if order can be cancelled
-	if order.Status != "pending" && order.Status != "confirmed" {
+	if order.Status.Current != "pending" && order.Status.Current != "confirmed" {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Error:   "Cannot cancel order",
 			Message: "Order can only be cancelled when in pending or confirmed status",
