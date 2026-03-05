@@ -36,7 +36,7 @@ func Load() *Config {
 		JWTExpiration:        getEnvAsInt("JWT_EXPIRATION_HOURS", 24),
 		UserServiceAddr:      getEnv("USER_SERVICE_ADDR", "localhost:50051"),
 		ListingServiceAddr:   getEnv("LISTING_SERVICE_ADDR", "localhost:50052"),
-		InventoryServiceAddr: getEnv("INVENTORY_SERVICE_ADDR", "localhost:50053"),
+		InventoryServiceAddr: getEnv("INVENTORY_SERVICE_ADDR", "localhost:60053"),
 		AllowedOrigins:       getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
 		RateLimit:            getEnvAsInt("RATE_LIMIT", 100),
 	}
