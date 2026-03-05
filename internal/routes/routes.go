@@ -63,7 +63,7 @@ func Setup(cfg *config.Config, grpcClients *grpcclient.Clients) *gin.Engine {
 	setupAPIRoutes(api)
 
 	// API v1 routes (versioned)
-	v1 := router.Group("/api/v1")
+	v1 := router.Group("/api/v2")
 	setupAPIRoutes(v1)
 
 	// Handle 404
