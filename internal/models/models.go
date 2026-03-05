@@ -41,7 +41,7 @@ type Product struct {
 	Images      []string  `json:"images,omitempty"`
 	SellerID    string    `json:"seller_id,omitempty"`
 	Stock       int32     `json:"stock,omitempty"`
-	InStock     bool      `json:"inStock"`
+	InStock     bool      `json:"in_stock"`
 	Available   bool      `json:"available,omitempty"`
 	CreatedAt   time.Time `json:"createdAt,omitempty"`
 	UpdatedAt   time.Time `json:"updatedAt,omitempty"`
