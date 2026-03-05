@@ -70,7 +70,7 @@ func AuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		// Set user information in context
-		c.Set("userID", claims.UserID)
+		c.Set("uid", claims.UserID)
 		c.Set("email", claims.Email)
 		c.Set("role", claims.Role)
 		c.Set("claims", claims)
@@ -106,7 +106,7 @@ func OptionalAuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 		})
 
 		if err == nil && token.Valid {
-			c.Set("userID", claims.UserID)
+			c.Set("uid", claims.UserID)
 			c.Set("email", claims.Email)
 			c.Set("role", claims.Role)
 			c.Set("claims", claims)
