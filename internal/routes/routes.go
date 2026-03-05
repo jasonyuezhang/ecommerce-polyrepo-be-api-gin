@@ -43,7 +43,7 @@ func Setup(cfg *config.Config, grpcClients *grpcclient.Clients) *gin.Engine {
 			products.POST("", middleware.AuthMiddleware(cfg), productHandler.CreateProduct)
 			products.PUT("/:id", middleware.AuthMiddleware(cfg), productHandler.UpdateProduct)
 			products.DELETE("/:id", middleware.AuthMiddleware(cfg), productHandler.DeleteProduct)
-			products.PUT("/:id/inventory", middleware.AuthMiddleware(cfg), productHandler.UpdateInventory)
+			products.PUT("/:id/stock", middleware.AuthMiddleware(cfg), productHandler.UpdateInventory)
 		}
 
 		// Order routes (all protected)
