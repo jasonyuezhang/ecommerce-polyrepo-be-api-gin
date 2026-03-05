@@ -34,7 +34,7 @@ func Load() *Config {
 		Environment:          getEnv("ENVIRONMENT", "development"),
 		JWTSecret:            getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
 		JWTExpiration:        getEnvAsInt("JWT_EXPIRATION_HOURS", 24),
-		UserServiceAddr:      getEnv("USER_SERVICE_ADDR", "localhost:50051"),
+		UserServiceAddr:      getEnv("USER_SERVICE_ADDR", "localhost:60051"),
 		ListingServiceAddr:   getEnv("LISTING_SERVICE_ADDR", "localhost:50052"),
 		InventoryServiceAddr: getEnv("INVENTORY_SERVICE_ADDR", "localhost:50053"),
 		AllowedOrigins:       getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
