@@ -37,7 +37,7 @@ func Load() *Config {
 		UserServiceAddr:      getEnv("USER_SERVICE_ADDR", "localhost:50051"),
 		ListingServiceAddr:   getEnv("LISTING_SERVICE_ADDR", "localhost:50052"),
 		InventoryServiceAddr: getEnv("INVENTORY_SERVICE_ADDR", "localhost:50053"),
-		AllowedOrigins:       getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3000"}),
+		AllowedOrigins:       getEnvAsSlice("ALLOWED_ORIGINS", []string{"http://localhost:3001"}),
 		RateLimit:            getEnvAsInt("RATE_LIMIT", 100),
 	}
 }
