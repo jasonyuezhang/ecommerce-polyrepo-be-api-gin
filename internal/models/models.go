@@ -24,7 +24,7 @@ type PaginatedResponse struct {
 
 // ProductsResponse represents a paginated products response
 type ProductsResponse struct {
-	Products   []*Product `json:"products"`
+	Products   []*Product `json:"items"`
 	Page       int        `json:"page"`
 	Limit      int        `json:"limit"`
 	Total      int64      `json:"total"`
